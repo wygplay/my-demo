@@ -5,7 +5,7 @@
     <modules>
         <module>demo-quartz-sheduler</module>
         <module>demo-swagger</module>
-        <module>demo-swagger</module>
+        <module>boot-unit-test</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
