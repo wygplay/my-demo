@@ -1,6 +1,10 @@
 package com.wygplay.consume;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.ExchangeTypes;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +23,12 @@ public class TopicConsumeListener {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    @RabbitListener(queues = "topic.queueA")
+    @RabbitListener(bindings = @QueueBinding(value = @Queue("topic.queueA"), exchange = @Exchange(value = "hmall.topic", type = ExchangeTypes.TOPIC), key = "china.#"))
     public void consumeA(String message) {
         log.info("topic consumeA consumed: {}", message);
     }
 
-    @RabbitListener(queues = "topic.queueB")
+    @RabbitListener(bindings = @QueueBinding(value = @Queue("topic.queueB"), exchange = @Exchange(value = "hmall.topic", type = ExchangeTypes.TOPIC), key = "#.news"))
     public void consumeB(String message) {
         log.info("topic consumeB consumed: {}", message);
     }

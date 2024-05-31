@@ -6,6 +6,12 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * Fanout 模型
+ * 广播模式
+ * exchange hmall.fanout
+ * queue fanout.queueA, fanout.queueB
+ */
 @Slf4j
 @Component
 public class FanoutConsumeListener {
