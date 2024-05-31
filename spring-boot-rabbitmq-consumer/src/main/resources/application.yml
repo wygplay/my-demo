@@ -5,6 +5,6 @@ spring:
     virtual-host: /hmall
     username: hmall
     password: 123456
-    simple:
-      listener:
+    listener:
+      simple:
         prefetch: 1
