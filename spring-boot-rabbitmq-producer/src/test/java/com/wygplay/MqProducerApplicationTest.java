@@ -5,7 +5,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @SpringBootTest
 class MqProducerApplicationTest {
@@ -54,5 +55,14 @@ class MqProducerApplicationTest {
         rabbitTemplate.convertAndSend(exchangeName, "china.weather", "tomorrow is a sunny day");
         rabbitTemplate.convertAndSend(exchangeName, "japan.news", "someone is disgusting");
         rabbitTemplate.convertAndSend(exchangeName, "news", "news: another piece of good news");
+    }
+
+    @Test
+    void testMessageConvertor() {
+        String queueName = "object.queue";
+        Map<String, String> map = new HashMap<>();
+        map.put("name", "guanyu");
+        map.put("skill", "dragon");
+        rabbitTemplate.convertAndSend(queueName, map);
     }
 }
