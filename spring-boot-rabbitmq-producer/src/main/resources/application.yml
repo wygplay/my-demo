@@ -5,3 +5,11 @@ spring:
     virtual-host: /hmall
     username: hmall
     password: 123456
+    connection-timeout: 100ms
+    template:
+      retry:
+        enabled: true
+        # 初始重试间隔时间，当multiplier=2时，第一次重试间隔时间为1s，第二次为2s，第三次为4s，第四次为8s
+        multiplier: 2
+        initial-interval: 1s
+        max-attempts: 3
