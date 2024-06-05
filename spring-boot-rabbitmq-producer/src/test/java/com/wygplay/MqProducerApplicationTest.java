@@ -1,13 +1,17 @@
 package com.wygplay;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @SpringBootTest
 class MqProducerApplicationTest {
 
@@ -64,5 +68,48 @@ class MqProducerApplicationTest {
         map.put("name", "guanyu");
         map.put("skill", "dragon");
         rabbitTemplate.convertAndSend(queueName, map);
+    }
+
+    @Test
+    void testPublisherConfirms() {
+        String exchangeName = "hmall.confirm.direct";
+        String wrongExchangeName = "hmall.confirm.direct1";
+        String queueName = "confirm.queue";
+        String routingKey = "confirm";
+        String wrongRoutingKey = "confirm1";
+        String msg = "hello confirm.queue!";
+        CorrelationData cd = new CorrelationData();
+        cd.getFuture().addCallback(new ListenableFutureCallback<CorrelationData.Confirm>() {
+            @Override
+            public void onFailure(Throwable ex) {
+                log.error("confirm error: {}", ex.getMessage());
+            }
+
+            @Override
+            public void onSuccess(CorrelationData.Confirm result) {
+                if (result.isAck()) {
+                    log.info("confirm success");
+                } else {
+                    log.error("confirm fail reason: {}", result.getReason());
+                    rabbitTemplate.convertAndSend(exchangeName, routingKey, "retry: hello confirm.queue!");
+                }
+            }
+        });
+
+        rabbitTemplate.convertAndSend(exchangeName, routingKey, msg, cd);
+        rabbitTemplate.convertAndSend(exchangeName, wrongRoutingKey, msg, cd);
+        rabbitTemplate.convertAndSend(exchangeName, wrongRoutingKey, msg, cd);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        rabbitTemplate.convertAndSend(wrongExchangeName, routingKey, msg, cd);
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
